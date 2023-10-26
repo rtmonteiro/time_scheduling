@@ -1,55 +1,90 @@
-from schedule import Schedule, Course, Room, Curricula, Constraint
+from schedule import Schedule, Course, Room, Curriculum, Constraint
 
 
 def read_file(file_path):
     schedule = None
     with open(file_path, "r") as f:
-        # Read name, courses_size, rooms_size, n_days, n_periods, curricula_size, constraints_size
-        name = f.readline().split(" ")[1]
-        courses_size = int(f.readline().split(" ")[1])
-        rooms_size = int(f.readline().split(" ")[1])
-        n_days = f.readline().split(" ")[1]
-        n_periods = f.readline().split(" ")[1]
-        curricula_size = int(f.readline().split(" ")[1])
-        constraints_size = int(f.readline().split(" ")[1])
-        schedule = Schedule(
-            name,
-            n_days,
-            n_periods,
-        )
+        schedule = read_schedule(f, schedule)
 
         # Read courses
         f.readline()  # Skip line
         f.readline()  # Skip Title
-        for _ in range(courses_size):
-            course = f.readline().split(" ")
-            schedule.courses.append(
-                Course(course[0], course[1], course[2], course[3], course[4])
-            )
+        read_courses(schedule, f)
 
         # Read rooms
         f.readline()  # Skip line
         f.readline()  # Skip Title
-        for _ in range(rooms_size):
-            room = f.readline().split(" ")
-            schedule.rooms.append(Room(room[0], room[1]))
+        read_rooms(schedule, f)
 
         # Read curricula
         f.readline()  # Skip line
         f.readline()  # Skip Title
-        for _ in range(curricula_size):
-            curricula = f.readline().split(" ")
-            schedule.curricula.append(
-                Curricula(curricula[0], curricula[2:-1])
-            )
+        read_curricula(schedule, f)
 
         # Read constraints
         f.readline()  # Skip line
         f.readline()  # Skip Title
-        for _ in range(constraints_size):
-            constraint = f.readline().split(" ")
-            schedule.constraints.append(
-                Constraint(constraint[0], constraint[1], constraint[2])
-            )
+        read_constraints(schedule, f)
 
+    return schedule
+
+
+def read_constraints(schedule: Schedule, f):
+    for _ in range(schedule.constraints_size):
+        schedule.constraints.append(read_constraint(f.readline()))
+
+
+def read_constraint(str_constraint) -> Constraint:
+    constraint = str_constraint.split(" ")
+    return Constraint(constraint[0], constraint[1], constraint[2])
+
+
+def read_curricula(schedule: Schedule, f):
+    for _ in range(schedule.curricula_size):
+        schedule.curricula.append(read_curriculum(f.readline()))
+
+
+def read_curriculum(str_curricula) -> Curriculum:
+    curricula = str_curricula.split(" ")
+    return Curriculum(curricula[0], curricula[2:-1])
+
+
+def read_rooms(schedule: Schedule, f):
+    for _ in range(schedule.rooms_size):
+        schedule.rooms.append(read_room(f.readline()))
+
+
+def read_room(str_room) -> Room:
+    room = str_room.split(" ")
+    return Room(room[0], room[1])
+
+
+def read_courses(schedule: Schedule, f):
+    for _ in range(schedule.courses_size):
+        schedule.courses.append(read_course(f.readline()))
+
+
+def read_course(str_course) -> Course:
+    course = str_course.split(" ")
+    return Course(course[0], course[1], course[2], course[3], course[4])
+
+
+def read_schedule(f, schedule):
+    # Read name, courses_size, rooms_size, n_days, n_periods, curricula_size, constraints_size
+    name = f.readline().split(" ")[1].strip()
+    course_size = f.readline().split(" ")[1].strip()
+    rooms_size = f.readline().split(" ")[1].strip()
+    n_days = f.readline().split(" ")[1].strip()
+    n_periods = f.readline().split(" ")[1].strip()
+    curricula_size = f.readline().split(" ")[1].strip()
+    constraints_size = f.readline().split(" ")[1].strip()
+    schedule = Schedule(
+        name,
+        n_days,
+        n_periods,
+        course_size,
+        rooms_size,
+        curricula_size,
+        constraints_size,
+    )
     return schedule

@@ -4,10 +4,18 @@ class Schedule:
         name,
         n_days,
         n_periods,
+        courses_size,
+        rooms_size,
+        curricula_size,
+        constraints_size,
     ):
         self.name = name
         self.n_days = int(n_days)
         self.n_periods = int(n_periods)
+        self.courses_size = int(courses_size)
+        self.rooms_size = int(rooms_size)
+        self.curricula_size = int(curricula_size)
+        self.constraints_size = int(constraints_size)
         self.courses = []
         self.rooms = []
         self.curricula = []
@@ -18,9 +26,9 @@ class Schedule:
 
 
 class Course:
-    def __init__(self, id, teacher, n_lectures, min_working_days, n_students):
+    def __init__(self, id, teacher_id, n_lectures, min_working_days, n_students):
         self.id = id
-        self.teacher = teacher
+        self.teacher_id = teacher_id
         self.n_lectures = int(n_lectures)
         self.min_working_days = int(min_working_days)
         self.n_students = int(n_students)
@@ -32,7 +40,7 @@ class Room:
         self.capacity = int(capacity)
 
 
-class Curricula:
+class Curriculum:
     def __init__(self, id, members):
         self.id = id
         self.members = members
@@ -41,5 +49,5 @@ class Curricula:
 class Constraint:
     def __init__(self, course_id, day, day_period):
         self.course_id = course_id
-        self.day = day
-        self.day_period = day_period
+        self.day = int(day)
+        self.day_period = int(day_period)
