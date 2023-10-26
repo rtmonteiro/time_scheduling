@@ -1,5 +1,6 @@
 from reader import read_constraint, read_course, read_curriculum, read_room
 
+
 class TestConstraint:
     def test_read_constraint(self):
         constraint = read_constraint("c0211 0 2 ")
@@ -29,4 +30,3 @@ class TestConstraint:
         assert course.n_lectures == 3
         assert course.min_working_days == 2
         assert course.n_students == 150
-
