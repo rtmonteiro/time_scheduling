@@ -23,7 +23,21 @@ class Schedule:
 
     def __str__(self):
         return f"Schedule({self.name}, {self.n_days}, {self.n_periods})"
+    
 
+class Solution:
+    def __init__(self, 
+                 course: str, 
+                 room: str,
+                 day: int,
+                 period: int) -> None:
+        self.course_id = course
+        self.room_id = room
+        self.day = day
+        self.period = period
+    
+    def __str__(self) -> str:
+        return f"{self.course_id} {self.room_id} {self.day} {self.period}"
 
 class Course:
     def __init__(self, id, teacher_id, n_lectures, min_working_days, n_students):
