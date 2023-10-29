@@ -1,4 +1,4 @@
-from reader import read_file
+from scheduling.reader.reader import read_file
 import sys
 
 

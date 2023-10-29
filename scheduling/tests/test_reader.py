@@ -1,7 +1,7 @@
-from reader import read_constraint, read_course, read_curriculum, read_room
+from scheduling.reader.reader import read_constraint, read_course, read_curriculum, read_room
 
 
-class TestConstraint:
+class TestGoodReading:
     def test_read_constraint(self):
         constraint = read_constraint("c0211 0 2 ")
         assert constraint.course_id == "c0211"

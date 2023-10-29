@@ -1,4 +1,4 @@
-from schedule import Schedule, Course, Room, Curriculum, Constraint
+from ..models.schedule import Schedule, Course, Room, Curriculum, Constraint
 
 
 def read_file(file_path):
