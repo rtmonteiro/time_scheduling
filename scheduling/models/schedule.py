@@ -46,7 +46,7 @@ class Schedule:
         return JSONEncoder().encode(self.__dict__())
     
 
-class Solution:
+class Assignment:
     def __init__(self, 
                  course: str, 
                  room: str,

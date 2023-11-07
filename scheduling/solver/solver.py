@@ -1,21 +1,20 @@
 from math import exp
 from random import random
-from scheduling.models.schedule import Schedule, Solution
+from scheduling.models.schedule import Schedule, Assignment
 from scheduling.solver.checker import check_constraints
 
 
-def solve(schedule: Schedule) -> list[Solution]:
+def solve(schedule: Schedule) -> list[Assignment]:
     """Solves the given schedule and returns the list of solutions"""
 
-    solutions = generate_solutions(schedule)
+    # Generate initial solution
+    solution = generate_solution(schedule)
+    # Apply simulated annealing
+    solution = simulated_annealing(solution, 100, 100, 100, 0.9)
 
-    solutions = simulated_annealing(solutions, 100, 100, 100, 0.9)
+    return solution
 
-
-
-    return solutions
-
-def generate_solutions(schedule: Schedule) -> list[Solution]:
+def generate_solution(schedule: Schedule) -> list[Assignment]:
     """Generates all possible solutions for the given schedule"""
 
     solutions = []
@@ -24,12 +23,12 @@ def generate_solutions(schedule: Schedule) -> list[Solution]:
             if room.capacity >= course.n_students:
                 for day in range(1, schedule.n_days + 1):
                     for period in range(1, schedule.n_periods + 1):
-                        solutions.append(Solution(course.id, room.id, day, period))
+                        solutions.append(Assignment(course.id, room.id, day, period))
                 break
 
     return solutions
 
-def simulated_annealing(initial_solution: list[Solution],
+def simulated_annealing(initial_solution: list[Assignment],
                          max_iter: int,
                          max_perturb: int,
                          max_success:int,
@@ -60,11 +59,11 @@ def initial_temperature():
     """Returns the initial temperature for the simulated annealing algorithm"""
     return 30
 
-def perturb(solution: list[Solution]) -> list[Solution]:
+def perturb(solution: list[Assignment]) -> list[Assignment]:
     """Perturbs the given solution"""
     return solution
 
-def f(solution: list[Solution]) -> int:
+def f(solution: list[Assignment]) -> int:
     """Returns the fitness of the given solution"""
     return check_constraints(solution)
 

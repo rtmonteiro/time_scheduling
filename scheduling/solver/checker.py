@@ -1,11 +1,12 @@
-from scheduling.models.schedule import Solution
+from scheduling.models.schedule import Assignment
 
 
-def check_constraints(solution: list[Solution]) -> int:
+def check_constraints(solution: list[Assignment]) -> int:
     """Returns the fitness of the given solution"""
     ## Hard Constraints ##
     score = 0
     # 1. Lectures: All lectures of a course must be scheduled, and they must be assigned to distinct periods. A violation occurs if a lecture is not scheduled.
+    solver += check_lectures(solution)
 
     # 2. RoomOccupancy: Two lectures cannot take place in the same room in the same period. Two lectures in the same room at the same period represent one violation. Any extra lecture in the same period and room counts as one more violation.
 
@@ -22,3 +23,9 @@ def check_constraints(solution: list[Solution]) -> int:
     # 7. CurriculumCompactness: Lectures belonging to a curriculum should be adjacent to each other (i.e., in consecutive periods). For a given curriculum we account for a violation every time there is one lecture not adjacent to any other lecture within the same day. Each isolated lecture in a curriculum counts as 2 points of penalty.
 
     return score
+
+def check_lectures(solution: list[Assignment]) -> int:
+    """Returns the number of violations of the lectures constraint"""
+    score = 0
+
+    
