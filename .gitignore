@@ -29,3 +29,6 @@ venv.bak/
 
 # Problem description
 *.pdf
+
+# Output
+out/
