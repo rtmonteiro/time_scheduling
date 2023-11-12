@@ -10,7 +10,7 @@ def solve(schedule: Schedule) -> list[Assignment]:
     # Generate initial solution
     solution = generate_solution(schedule)
     # Apply simulated annealing
-    solution = simulated_annealing(solution, 100, 100, 100, 0.9)
+    solution = simulated_annealing(solution, 100, 100, 100, 0.9, schedule)
 
     return solution
 
@@ -32,7 +32,8 @@ def simulated_annealing(initial_solution: list[Assignment],
                          max_iter: int,
                          max_perturb: int,
                          max_success:int,
-                         alpha: float ):
+                         alpha: float,
+                         schedule: Schedule) -> list[Assignment]:
     """Simulated Annealing algorithm"""
     solution = initial_solution
     temperature = initial_temperature()
@@ -42,7 +43,7 @@ def simulated_annealing(initial_solution: list[Assignment],
         success = 0
         while True:
             new_solution = perturb(solution)
-            delta = f(new_solution) - f(solution)
+            delta = f(new_solution, schedule) - f(solution, schedule)
             if delta <= 0 or random() < exp(-delta/temperature):
                 solution = new_solution
                 success += 1
@@ -63,9 +64,9 @@ def perturb(solution: list[Assignment]) -> list[Assignment]:
     """Perturbs the given solution"""
     return solution
 
-def f(solution: list[Assignment]) -> int:
+def f(solution: list[Assignment], schedule: Schedule) -> int:
     """Returns the fitness of the given solution"""
-    return check_constraints(solution)
+    return check_constraints(solution, schedule)
 
 
 """

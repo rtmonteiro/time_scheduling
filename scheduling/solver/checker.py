@@ -1,12 +1,26 @@
-from scheduling.models.schedule import Assignment
+from scheduling.models.schedule import Assignment, Schedule
 
+def transform_matrix(solution: list[Assignment], schedule: Schedule) -> list[list[int]]:
+    """Transforms the given solution into a matrix"""
+    
+    rooms_schedule = [[[0 for _ in range(schedule.n_periods)] for _ in range(schedule.n_days)] for _ in range(schedule.rooms_size)]
 
-def check_constraints(solution: list[Assignment]) -> int:
+    for assignment in solution:
+        room_index = schedule.rooms.index(assignment.room_id)
+        rooms_schedule[room_index][assignment.day - 1][assignment.period - 1] = assignment.course_id
+
+    return rooms_schedule
+    
+
+def check_constraints(solution: list[Assignment], schedule) -> int:
     """Returns the fitness of the given solution"""
+
+    rooms_schedule = transform_matrix(solution, schedule)
+
     ## Hard Constraints ##
     score = 0
     # 1. Lectures: All lectures of a course must be scheduled, and they must be assigned to distinct periods. A violation occurs if a lecture is not scheduled.
-    solver += check_lectures(solution)
+    score += check_lectures(rooms_schedule)
 
     # 2. RoomOccupancy: Two lectures cannot take place in the same room in the same period. Two lectures in the same room at the same period represent one violation. Any extra lecture in the same period and room counts as one more violation.
 
@@ -24,8 +38,9 @@ def check_constraints(solution: list[Assignment]) -> int:
 
     return score
 
-def check_lectures(solution: list[Assignment]) -> int:
+def check_lectures(matrix_solution: list[list[int]]) -> int:
     """Returns the number of violations of the lectures constraint"""
     score = 0
+    return 0
 
     

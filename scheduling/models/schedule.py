@@ -97,6 +97,11 @@ class Room:
             "capacity": self.capacity
         }
 
+    def __eq__(self, __value: str) -> bool:
+        if isinstance(__value, str):
+            return self.id == __value
+        return False
+
 
 class Curriculum:
     def __init__(self, id, members):
