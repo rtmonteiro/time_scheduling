@@ -17,7 +17,7 @@ def main():
     if len(sys.argv) == 3:
         solution_path = sys.argv[2]
     write_file(solved_schedule, solution_path)
-    write_json(schedule, "out/solution.json")
+    # write_json(schedule, "out/solution.json")
 
 
 if __name__ == "__main__":

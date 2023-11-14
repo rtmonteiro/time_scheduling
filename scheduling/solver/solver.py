@@ -1,7 +1,9 @@
 from math import exp
 from random import random
+from scheduling.mapper import mapper
 from scheduling.models.schedule import Schedule, Assignment
-from scheduling.solver.checker import check_constraints
+from scheduling.solver.checker import Matrix, check_constraints, init_matrix
+from scheduling.utils import insert_into_slice, is_all_zeros
 
 
 def solve(schedule: Schedule) -> list[Assignment]:
@@ -12,28 +14,35 @@ def solve(schedule: Schedule) -> list[Assignment]:
     # Apply simulated annealing
     solution = simulated_annealing(solution, 100, 100, 100, 0.9, schedule)
 
-    return solution
+    return mapper(schedule, solution)
 
-def generate_solution(schedule: Schedule) -> list[Assignment]:
+def generate_solution(schedule: Schedule) -> Matrix:
     """Generates all possible solutions for the given schedule"""
 
-    solutions = []
-    for course in schedule.courses:
-        for room in schedule.rooms:
-            if room.capacity >= course.n_students:
-                for day in range(1, schedule.n_days + 1):
-                    for period in range(1, schedule.n_periods + 1):
-                        solutions.append(Assignment(course.id, room.id, day, period))
-                break
+    solution = init_matrix(schedule)
 
-    return solutions
+    sorted_rooms = sorted(schedule.rooms, key=lambda x: x.capacity)
 
-def simulated_annealing(initial_solution: list[Assignment],
+    for course_index, course in enumerate(schedule.courses):
+        found = False
+        for room in filter(lambda x: x.capacity >= course.n_students, sorted_rooms):
+            if found: break
+            room_index = schedule.rooms.index(room)
+            for day_period in range(schedule.n_days*schedule.n_periods):
+                if is_all_zeros(solution[room_index][day_period:day_period+course.n_lectures]) \
+                    and day_period + course.n_lectures <= schedule.n_days*schedule.n_periods:
+                    found = True
+                    insert_into_slice(solution[room_index], day_period, course.n_lectures, course_index)
+                    break
+
+    return solution
+
+def simulated_annealing(initial_solution: Matrix,
                          max_iter: int,
                          max_perturb: int,
                          max_success:int,
                          alpha: float,
-                         schedule: Schedule) -> list[Assignment]:
+                         schedule: Schedule) -> Matrix:
     """Simulated Annealing algorithm"""
     solution = initial_solution
     temperature = initial_temperature()
@@ -60,45 +69,10 @@ def initial_temperature():
     """Returns the initial temperature for the simulated annealing algorithm"""
     return 30
 
-def perturb(solution: list[Assignment]) -> list[Assignment]:
+def perturb(solution: Matrix) -> Matrix:
     """Perturbs the given solution"""
     return solution
 
-def f(solution: list[Assignment], schedule: Schedule) -> int:
+def f(solution: Matrix, schedule: Schedule) -> int:
     """Returns the fitness of the given solution"""
     return check_constraints(solution, schedule)
-
-
-"""
-Pseudo-Código Simulated Annealing
-Inicio
-/* Entradas do Algoritmo */
-Ler (S0, M, P, L, α)
-/* Inicialização das variáveis */
-S = S0
-T0 = TempInicial()
-T = T0
-j = 1
-/*Loop principal – Verifica se foram atendidas as condições de termino do algoritmo*/
-Repita
-i = 1
-nSucesso = 0
-/*Loop Interno – Realização de perturbação em uma iteração*/
-Repita
-Si = Perturba(S)
-∆Fi = f(Si) – f(S)
-/*Teste de aceitação de uma nova solução*/
-Se (∆fi ≤ 0) ou (exp(-∆fi/T) > Randomiza()) então
-S= Si
-nSucesso = nSucesso + 1
-Fim-se
-i = i + 1
-Até (nSucesso ≥ L) ou (i > P)
-/*Actualização da Temperatura*/
-T = α.T
-/*Actualização do Contador de iterações*/
-j = j + 1
-Até (nSucesso = 0) ou (j > M)
-/*Saída do Algoritmo*/
-Imprima(S)
-"""
