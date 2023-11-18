@@ -1,5 +1,6 @@
+from scheduling.models.matrix import Matrix
 from scheduling.models.schedule import Assignment, Schedule
-from scheduling.solver.checker import Matrix, init_matrix
+from scheduling.solver.checker import init_matrix
 
 
 def mapper(schedule: Schedule, solution: list[Assignment]) -> Matrix:

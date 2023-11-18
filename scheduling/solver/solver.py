@@ -1,8 +1,9 @@
 from math import exp
 from random import random
 from scheduling.mapper import mapper
+from scheduling.models.matrix import Matrix
 from scheduling.models.schedule import Schedule, Assignment
-from scheduling.solver.checker import Matrix, check_constraints, init_matrix
+from scheduling.solver.checker import check_constraints, init_matrix
 from scheduling.utils import insert_into_slice, is_all_zeros
 
 
@@ -12,7 +13,12 @@ def solve(schedule: Schedule) -> list[Assignment]:
     # Generate initial solution
     solution = generate_solution(schedule)
     # Apply simulated annealing
-    solution = simulated_annealing(solution, 100, 100, 100, 0.9, schedule)
+    solution = simulated_annealing(initial_solution = solution,
+                                    max_iter = 100,
+                                    max_perturb = 100,
+                                    max_success = 100,
+                                    alpha = 0.9,
+                                    schedule = schedule)
 
     return mapper(schedule, solution)
 
