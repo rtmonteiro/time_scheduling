@@ -25,6 +25,7 @@ def check_constraints(solution: Matrix, schedule: Schedule) -> int:
     score += check_conflicts(solution, schedule)
 
     # 4. Availabilities: If the teacher of the course is not available to teach that course at a given period, then no lectures of the course can be scheduled at that period. Each lecture in a period unavailable for that course is one violation.
+    score += check_availabilities(solution, schedule)
 
     ## Soft Constraints ##
 
@@ -117,4 +118,24 @@ def check_conflicts(matrix_solution: Matrix, schedule: Schedule) -> int:
                     if is_same_curriculum or course.teacher_id == other_course.teacher_id:
                         score += 1                
     
+    return score
+
+def check_availabilities(matrix_solution: Matrix, schedule: Schedule) -> int:
+    """Returns the number of violations of the availabilities constraint
+    
+    If the teacher of the course is not available to teach that course at a given period, then no lectures of the course can be scheduled at that period. Each lecture in a period unavailable for that course is one violation.
+    """
+    score = 0
+    for room in matrix_solution:
+        for day_period, course_index in enumerate(room):
+            if course_index == -1:
+                continue
+            course = schedule.courses[course_index]
+            course_constraints = filter(lambda constraint: constraint.course_id == course.id, schedule.constraints)
+            day = day_period % schedule.n_periods
+            period = day_period // schedule.n_periods
+            score += sum(1 for constraint in course_constraints \
+                            if constraint.day == day \
+                            and constraint.day_period == period)
+
     return score

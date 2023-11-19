@@ -116,7 +116,7 @@ class Curriculum:
 
 
 class Constraint:
-    def __init__(self, course_id, day, day_period):
+    def __init__(self, course_id: str, day: str, day_period: str):
         self.course_id = course_id
         self.day = int(day)
         self.day_period = int(day_period)
