@@ -87,7 +87,7 @@ class Course:
 
 
 class Room:
-    def __init__(self, id, capacity):
+    def __init__(self, id: str, capacity: str):
         self.id = id
         self.capacity = int(capacity)
     
@@ -104,7 +104,7 @@ class Room:
 
 
 class Curriculum:
-    def __init__(self, id, members):
+    def __init__(self, id: str, members: list[str]):
         self.id = id
         self.members = members
     

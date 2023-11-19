@@ -44,7 +44,7 @@ def mock_schedule_failure():
     schedule.courses[5].n_lectures = 4
     return schedule
 
-class TestChecker:
+class TestLectureChecker:
     def test_check_course_not_schedule_success(self, mock_schedule_success):
         matrix = [[0, 0, 0, 1, 1, 1],
                   [2, 2, 2, 3, 3, 3],

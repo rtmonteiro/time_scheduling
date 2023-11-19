@@ -22,6 +22,7 @@ def check_constraints(solution: Matrix, schedule: Schedule) -> int:
     score += check_room_occupancy(solution, schedule)
     
     # 3. Conflicts: Lectures of courses in the same curriculum or taught by the same teacher must be all scheduled in different periods. Two conflicting lectures in the same period represent one violation. Three conflicting lectures count as 3 violations: one for each pair.
+    score += check_conflicts(solution, schedule)
 
     # 4. Availabilities: If the teacher of the course is not available to teach that course at a given period, then no lectures of the course can be scheduled at that period. Each lecture in a period unavailable for that course is one violation.
 
@@ -64,7 +65,6 @@ def check_lecture_not_schedule(matrix_solution: Matrix, schedule: Schedule) -> i
             score += 1
     return score
 
-import time
 
 def check_course_not_schedule(matrix_solution: Matrix, schedule: Schedule) -> int:
     """Returns the number of violations of a course not scheduled"""
@@ -89,4 +89,32 @@ def check_room_occupancy(matrix_solution: Matrix, schedule: Schedule) -> int:
             # Check if there are more than one course in the same room and period
             if len(course_indices) > 1:
                 score += len(course_indices) - 1
+    return score
+
+def check_conflicts(matrix_solution: Matrix, schedule: Schedule) -> int:
+    """Returns the number of violations of the conflicts constraint
+    
+    Lectures of courses in the same curriculum or taught by the same teacher must be all scheduled in different periods.  Two conflicting lectures in the same period represent one violation. Three conflicting lectures count as 3 violations: one for each pair.
+    """
+    score = 0
+    for room in matrix_solution:
+        for course_index in room:
+            if course_index == -1:
+                continue
+            course = schedule.courses[course_index]
+            # Check if there are more than one course of the same curriculum or teacher in the same period in other rooms
+            for other_room in matrix_solution:
+                for other_course_index in other_room:
+                    if other_course_index == -1 \
+                        or other_course_index == course_index:
+                        continue
+                    other_course = schedule.courses[other_course_index]
+                    is_same_curriculum = False
+                    for curriculum in schedule.curricula:
+                        if course.id in curriculum.members:
+                            if other_course.id in curriculum.members:
+                                is_same_curriculum = True
+                    if is_same_curriculum or course.teacher_id == other_course.teacher_id:
+                        score += 1                
+    
     return score
