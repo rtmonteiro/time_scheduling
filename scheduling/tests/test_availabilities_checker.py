@@ -4,7 +4,7 @@ from scheduling.solver.checker import check_availabilities
 
 
 @pytest.fixture
-def mock_schedule_success():
+def mock_schedule():
     schedule = Schedule(
         name="mock_schedule",
         n_days=1,
@@ -23,9 +23,8 @@ def mock_schedule_success():
             n_students=1
         ),
     ]
-    schedule.constraints = [
+    schedule.courses[0].constraints = [
         Constraint(
-            course_id="course1",
             day=0,
             day_period=0,
         )
@@ -33,14 +32,14 @@ def mock_schedule_success():
     return schedule
 
 class TestAvailabityChecker:
-    def test_check_availability_pass(self, mock_schedule_success):
+    def test_check_availability_pass(self, mock_schedule):
         matrix_solution = [[-1, 0]]
-        schedule = mock_schedule_success
+        schedule = mock_schedule
         score = check_availabilities(matrix_solution, schedule)
         assert score == 0
 
-    def test_check_availability_fail(self, mock_schedule_success):
+    def test_check_availability_fail(self, mock_schedule):
         matrix_solution = [[0, -1]]
-        schedule = mock_schedule_success
+        schedule = mock_schedule
         score = check_availabilities(matrix_solution, schedule)
         assert score == 1

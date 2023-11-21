@@ -1,3 +1,4 @@
+from io import TextIOWrapper
 from ..models.schedule import Schedule, Course, Room, Curriculum, Constraint
 
 
@@ -29,17 +30,19 @@ def read_file(file_path):
     return schedule
 
 
-def read_constraints(schedule: Schedule, f):
+def read_constraints(schedule: Schedule, f: TextIOWrapper):
     for _ in range(schedule.constraints_size):
-        schedule.constraints.append(read_constraint(f.readline()))
+        course_id, constraint = read_constraint(f.readline())
+        courses: list[Course] = [course for course in schedule.courses if course.id == course_id]
+        courses[0].constraints.append(constraint)
 
 
 def read_constraint(str_constraint) -> Constraint:
     constraint = str_constraint.split(" ")
-    return Constraint(constraint[0], constraint[1], constraint[2])
+    return constraint[0], Constraint(constraint[1], constraint[2])
 
 
-def read_curricula(schedule: Schedule, f):
+def read_curricula(schedule: Schedule, f: TextIOWrapper):
     for _ in range(schedule.curricula_size):
         schedule.curricula.append(read_curriculum(f.readline()))
 
@@ -49,7 +52,7 @@ def read_curriculum(str_curricula) -> Curriculum:
     return Curriculum(curricula[0], curricula[2:-1])
 
 
-def read_rooms(schedule: Schedule, f):
+def read_rooms(schedule: Schedule, f: TextIOWrapper):
     for _ in range(schedule.rooms_size):
         schedule.rooms.append(read_room(f.readline()))
 
@@ -59,7 +62,7 @@ def read_room(str_room) -> Room:
     return Room(room[0], room[1])
 
 
-def read_courses(schedule: Schedule, f):
+def read_courses(schedule: Schedule, f: TextIOWrapper):
     for _ in range(schedule.courses_size):
         schedule.courses.append(read_course(f.readline()))
 

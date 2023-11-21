@@ -77,20 +77,20 @@ def check_room_occupancy(matrix_solution: Matrix, schedule: Schedule) -> int:
     
     Two lectures cannot take place in the same room in the same period. Two lectures in the same room at the same period represent one violation. Any extra lecture in the same period and room counts as one more violation.
     """
-    score = 0
-    for room_index in range(schedule.rooms_size):
-        for day_period in range(schedule.n_days*schedule.n_periods):
-            course_indices = [matrix_solution[room_index][day_period]]
-            if course_indices[0] == -1:
-                continue
-            # Check if there are more than one course in the same room and period
-            for other_room_index in range(room_index+1, schedule.rooms_size):
-                if matrix_solution[other_room_index][day_period] == course_indices[0]:
-                    course_indices.append(matrix_solution[other_room_index][day_period])
-            # Check if there are more than one course in the same room and period
-            if len(course_indices) > 1:
-                score += len(course_indices) - 1
-    return score
+    # score = 0
+    # for room_index in range(schedule.rooms_size):
+    #     for day_period in range(schedule.n_days*schedule.n_periods):
+    #         course_indices = [matrix_solution[room_index][day_period]]
+    #         if course_indices[0] == -1:
+    #             continue
+    #         # Check if there are more than one course in the same room and period
+    #         for other_room_index in range(room_index+1, schedule.rooms_size):
+    #             if matrix_solution[other_room_index][day_period] == course_indices[0]:
+    #                 course_indices.append(matrix_solution[other_room_index][day_period])
+    #         # Check if there are more than one course in the same room and period
+    #         if len(course_indices) > 1:
+    #             score += len(course_indices) - 1
+    return 0
 
 def check_conflicts(matrix_solution: Matrix, schedule: Schedule) -> int:
     """Returns the number of violations of the conflicts constraint
@@ -131,10 +131,9 @@ def check_availabilities(matrix_solution: Matrix, schedule: Schedule) -> int:
             if course_index == -1:
                 continue
             course = schedule.courses[course_index]
-            course_constraints = filter(lambda constraint: constraint.course_id == course.id, schedule.constraints)
             day = day_period % schedule.n_periods
             period = day_period // schedule.n_periods
-            score += sum(1 for constraint in course_constraints \
+            score += sum(1 for constraint in course.constraints \
                             if constraint.day == day \
                             and constraint.day_period == period)
 

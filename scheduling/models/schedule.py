@@ -22,7 +22,6 @@ class Schedule:
         self.courses: list[Course] = []
         self.rooms: list[Room] = []
         self.curricula: list[Curriculum] = []
-        self.constraints: list[Constraint] = []
 
     def __str__(self):
         return f"Schedule({self.name}, {self.n_days}, {self.n_periods})"
@@ -75,6 +74,7 @@ class Course:
         self.n_lectures = int(n_lectures)
         self.min_working_days = int(min_working_days)
         self.n_students = int(n_students)
+        self.constraints: list[Constraint] = []
 
     def __dict__(self) -> dict:
         return {
@@ -82,7 +82,8 @@ class Course:
             "teacher_id": self.teacher_id,
             "n_lectures": self.n_lectures,
             "min_working_days": self.min_working_days,
-            "n_students": self.n_students
+            "n_students": self.n_students,
+            "constraints": [constraint.__dict__() for constraint in self.constraints]
         }
 
 
@@ -116,14 +117,12 @@ class Curriculum:
 
 
 class Constraint:
-    def __init__(self, course_id: str, day: str, day_period: str):
-        self.course_id = course_id
+    def __init__(self, day: str, day_period: str):
         self.day = int(day)
         self.day_period = int(day_period)
     
     def __dict__(self) -> dict:
         return {
-            "course_id": self.course_id,
             "day": self.day,
             "day_period": self.day_period
         }

@@ -3,8 +3,8 @@ from scheduling.reader.reader import read_constraint, read_course, read_curricul
 
 class TestGoodReading:
     def test_read_constraint(self):
-        constraint = read_constraint("c0211 0 2 ")
-        assert constraint.course_id == "c0211"
+        course_id, constraint = read_constraint("c0211 0 2 ")
+        assert course_id == "c0211"
         assert constraint.day == 0
         assert constraint.day_period == 2
 
