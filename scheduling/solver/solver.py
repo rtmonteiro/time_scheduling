@@ -6,6 +6,7 @@ from scheduling.models.matrix import Matrix
 from scheduling.models.schedule import Schedule, Assignment
 from scheduling.solver.checker import check_constraints, init_matrix
 from scheduling.utils import insert_into_slice, is_all_zeros
+from scheduling.logger import log_solution
 
 
 def solve(schedule: Schedule) -> list[Assignment]:
@@ -30,7 +31,9 @@ def generate_solution(schedule: Schedule) -> Matrix:
 
     sorted_rooms = sorted(schedule.rooms, key=lambda x: x.capacity)
 
-    for course_index, course in enumerate(schedule.courses):
+    sorted_courses = sorted(enumerate(schedule.courses), key=lambda x: len(x[1].constraints))
+
+    for course_index, course in sorted_courses:
         found = False
         for room in filter(lambda x: x.capacity >= course.n_students, sorted_rooms):
             if found: break
@@ -41,7 +44,7 @@ def generate_solution(schedule: Schedule) -> Matrix:
                     found = True
                     insert_into_slice(solution[room_index], day_period, course.n_lectures, course_index)
                     break
-
+    log_solution(solution)
     return solution
 
 def simulated_annealing(initial_solution: Matrix,
@@ -70,7 +73,6 @@ def simulated_annealing(initial_solution: Matrix,
                 # print(f"Found better solution with fitness {old_score} -> {new_score}")
                 # print(solution)
                 success += 1
-            print(f"Temperature: {temperature}, Iteration: {j}, Perturbation: {i}, Success: {success}")
             i += 1
             if success >= max_success or i >= max_perturb:
                 break
@@ -100,6 +102,7 @@ def perturb(solution: Matrix) -> Matrix:
     new_solution[room1][day_period1], new_solution[room2][day_period2] = \
         new_solution[room2][day_period2], new_solution[room1][day_period1]
 
+    log_solution(new_solution)
     return new_solution
 
 def f(solution: Matrix, schedule: Schedule) -> int:

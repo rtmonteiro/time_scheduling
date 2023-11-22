@@ -33,8 +33,8 @@ def read_file(file_path):
 def read_constraints(schedule: Schedule, f: TextIOWrapper):
     for _ in range(schedule.constraints_size):
         course_id, constraint = read_constraint(f.readline())
-        courses: list[Course] = [course for course in schedule.courses if course.id == course_id]
-        courses[0].constraints.append(constraint)
+        course_index = schedule.courses.index(course_id)
+        schedule.courses[course_index].constraints.append(constraint)
 
 
 def read_constraint(str_constraint) -> Constraint:

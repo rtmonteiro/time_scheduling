@@ -85,6 +85,11 @@ class Course:
             "n_students": self.n_students,
             "constraints": [constraint.__dict__() for constraint in self.constraints]
         }
+    
+    def __eq__(self, __value: str) -> bool:
+        if isinstance(__value, str):
+            return self.id == __value
+        return False
 
 
 class Room:
