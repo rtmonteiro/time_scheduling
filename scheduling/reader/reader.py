@@ -49,7 +49,8 @@ def read_curricula(schedule: Schedule, f: TextIOWrapper):
 
 def read_curriculum(str_curricula) -> Curriculum:
     curricula = str_curricula.split(" ")
-    return Curriculum(curricula[0], curricula[2:-1])
+    members_size = int(curricula[1])
+    return Curriculum(curricula[0], curricula[2:members_size + 2])
 
 
 def read_rooms(schedule: Schedule, f: TextIOWrapper):

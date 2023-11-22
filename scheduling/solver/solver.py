@@ -3,7 +3,7 @@ from math import exp
 from random import random
 from scheduling.mapper import mapper
 from scheduling.models.matrix import Matrix
-from scheduling.models.schedule import Schedule, Assignment
+from scheduling.models.schedule import Course, Schedule, Assignment
 from scheduling.solver.checker import check_constraints, init_matrix
 from scheduling.utils import insert_into_slice, is_all_zeros
 from scheduling.logger import log_solution
@@ -24,26 +24,24 @@ def solve(schedule: Schedule) -> list[Assignment]:
 
     return mapper(schedule, solution)
 
+def calculate_conflicts(course_tuple: tuple[int, Course], schedule: Schedule) -> int:
+    """Calculates the number of conflicts for the given course"""
+    course_index = course_tuple[0]
+    course = course_tuple[1]
+
+    n_curricula = sum(1 for curriculum in schedule.curricula if course.id in curriculum.members)
+    return len(course.constraints) + course.n_lectures - course.min_working_days + n_curricula
+
 def generate_solution(schedule: Schedule) -> Matrix:
     """Generates all possible solutions for the given schedule"""
 
     solution = init_matrix(schedule)
 
-    sorted_rooms = sorted(schedule.rooms, key=lambda x: x.capacity)
-
-    sorted_courses = sorted(enumerate(schedule.courses), key=lambda x: len(x[1].constraints))
-
-    for course_index, course in sorted_courses:
-        found = False
-        for room in filter(lambda x: x.capacity >= course.n_students, sorted_rooms):
-            if found: break
-            room_index = schedule.rooms.index(room)
-            for day_period in range(schedule.n_days*schedule.n_periods):
-                if is_all_zeros(solution[room_index][day_period:day_period+course.n_lectures]) \
-                    and day_period + course.n_lectures <= schedule.n_days*schedule.n_periods:
-                    found = True
-                    insert_into_slice(solution[room_index], day_period, course.n_lectures, course_index)
-                    break
+    # Set of all lectures to be assigned
+    lectures = [course.n_lectures*[course_index] for course_index, course in \
+                sorted(enumerate(schedule.courses), key = lambda x: calculate_conflicts(x, schedule), reverse=True)]
+    lectures = [item for sublist in lectures for item in sublist]
+    
     log_solution(solution)
     return solution
 
