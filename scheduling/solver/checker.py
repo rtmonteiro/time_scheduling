@@ -33,10 +33,13 @@ def check_constraints(solution: Matrix, schedule: Schedule) -> int:
     ## Soft Constraints ##
 
     # 5. RoomCapacity: For each lecture, the number of students that attend the course must be less or equal than the number of seats of all the rooms that host its lectures.Each student above the capacity counts as 1 point of penalty.
-
+    score += check_room_capacity(solution, schedule)
+    
     # 6. MinimumWorkingDays: The lectures of each course must be spread into the given minimum number of days. Each day below the minimum counts as 5 points of penalty.
+    score += check_minimun_word_days(solution, schedule)
 
     # 7. CurriculumCompactness: Lectures belonging to a curriculum should be adjacent to each other (i.e., in consecutive periods). For a given curriculum we account for a violation every time there is one lecture not adjacent to any other lecture within the same day. Each isolated lecture in a curriculum counts as 2 points of penalty.
+    score += check_curriculum_compactness(solution, schedule)
 
     return score
 
@@ -140,4 +143,64 @@ def check_availabilities(matrix_solution: Matrix, schedule: Schedule) -> int:
                             if constraint.day == day \
                             and constraint.day_period == period)
 
+    return score
+
+def check_room_capacity(matrix_solution: Matrix, schedule: Schedule) -> int:
+    """Returns the number of violations of the room capacity constraint
+    
+    For each lecture, the number of students that attend the course must be less or equal than the number of seats of all the rooms that host its lectures.Each student above the capacity counts as 1 point of penalty.
+    """
+    score = 0
+    for room_index, room in enumerate(matrix_solution):
+        for day_period, course_index in enumerate(room):
+            if course_index == -1:
+                continue
+            course = schedule.courses[course_index]
+            day = day_period % schedule.n_periods
+            period = day_period // schedule.n_periods
+            score += sum(1 for constraint in course.constraints \
+                            if constraint.day == day \
+                            and constraint.day_period == period)
+    return score
+
+def check_minimun_word_days(matrix_solution: Matrix, schedule: Schedule) -> int:
+    """Returns the number of violations of the minimum working days constraint
+    
+    The lectures of each course must be spread into the given minimum number of days. Each day below the minimum counts as 5 points of penalty.
+    """
+    score = 0
+    for course_index, course in enumerate(schedule.courses):
+        if is_element_absent(matrix_solution, course_index):
+            continue
+        row_index, index = search_subarray_in_matrix(matrix_solution, [course_index]*course.n_lectures)
+        if row_index == -1:
+            continue
+        days = set()
+        for day_period in range(schedule.n_days*schedule.n_periods):
+            if matrix_solution[row_index][day_period] == course_index:
+                days.add(day_period % schedule.n_periods)
+        if len(days) < course.min_working_days:
+            score += (course.min_working_days - len(days)) * 5
+    return score
+
+def check_curriculum_compactness(matrix_solution: Matrix, schedule: Schedule) -> int:
+    """Returns the number of violations of the curriculum compactness constraint
+    
+    Lectures belonging to a curriculum should be adjacent to each other (i.e., in consecutive periods). For a given curriculum we account for a violation every time there is one lecture not adjacent to any other lecture within the same day. Each isolated lecture in a curriculum counts as 2 points of penalty.
+    """
+    score = 0
+    for curriculum in schedule.curricula:
+        for course_id in curriculum.members:
+            course_index = schedule.courses_ids[course_id]
+            if is_element_absent(matrix_solution, course_index):
+                continue
+            row_index, index = search_subarray_in_matrix(matrix_solution, [course_index]*schedule.courses[course_index].n_lectures)
+            if row_index == -1:
+                continue
+            days = set()
+            for day_period in range(schedule.n_days*schedule.n_periods):
+                if matrix_solution[row_index][day_period] == course_index:
+                    days.add(day_period % schedule.n_periods)
+            if len(days) < schedule.courses[course_index].min_working_days:
+                score += (schedule.courses[course_index].min_working_days - len(days)) * 5
     return score

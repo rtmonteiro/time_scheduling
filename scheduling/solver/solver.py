@@ -1,7 +1,7 @@
-from copy import copy, deepcopy
+from copy import deepcopy
 from math import exp
 from random import random
-import time
+from time import time
 from scheduling.mapper import mapper
 from scheduling.models.matrix import Matrix
 from scheduling.models.schedule import Course, Schedule, Assignment
@@ -17,37 +17,57 @@ def solve(schedule: Schedule) -> list[Assignment]:
     # Generate initial solution
     solution = generate_solution(schedule)
     # Apply simulated annealing
-    solution = simulated_annealing(initial_solution = solution,
-                                    schedule = schedule,
-                                    max_iter = 100,
-                                    max_perturb = 100,
-                                    max_success = 100,
-                                    alpha = 0.9,
-                                    time_limit = 1000)
+    solution = simulated_annealing(
+        initial_solution=solution,
+        schedule=schedule,
+        max_iter=100,
+        max_perturb=100,
+        max_success=100,
+        alpha=0.9,
+        time_limit=1000,
+    )
 
     return mapper(schedule, solution)
 
-def simulated_annealing(initial_solution: Matrix,
-                        schedule: Schedule,
-                         max_iter: int,
-                         max_perturb: int,
-                         max_success:int,
-                         alpha: float,
-                         time_limit: int = 1000) -> Matrix:
+
+def simulated_annealing(
+    initial_solution: Matrix,
+    schedule: Schedule,
+    max_iter: int,
+    max_perturb: int,
+    max_success: int,
+    alpha: float,
+    time_limit: int = 1000,
+) -> Matrix:
+    """
+    Applies the simulated annealing algorithm to find an optimal solution for the given problem.
+
+    Args:
+        initial_solution (Matrix): The initial solution for the problem.
+        schedule (Schedule): The schedule for the problem.
+        max_iter (int): The maximum number of iterations.
+        max_perturb (int): The maximum number of perturbations per iteration.
+        max_success (int): The maximum number of successful perturbations per iteration.
+        alpha (float): The cooling rate for the temperature.
+        time_limit (int, optional): The maximum time limit in milliseconds. Defaults to 1000.
+
+    Returns:
+        Matrix: The optimal solution found by the algorithm.
+    """
     solution = initial_solution
     temperature = initial_temperature()
     j = 1
-    start = time.time()
-    while time_limit > time.time() - start:
+    start = time()
+    while time_limit > time() - start:
         i = 1
         success = 0
-        while time_limit > time.time() - start:
+        while time_limit > time() - start:
             new_solution = perturb(solution)
             new_score = f(new_solution, schedule)
             old_score = f(solution, schedule)
             delta = new_score - old_score
             success_rate = delta < 0
-            luck = random() < exp(-delta/temperature)
+            luck = random() < exp(-delta / temperature)
             if success_rate or luck:
                 solution = new_solution
                 success += 1
@@ -60,9 +80,11 @@ def simulated_annealing(initial_solution: Matrix,
             break
     return solution
 
+
 def initial_temperature():
     """Returns the initial temperature for the simulated annealing algorithm"""
     return 30
+
 
 def perturb(solution: Matrix) -> Matrix:
     """Perturbs the given solution"""
@@ -72,16 +94,20 @@ def perturb(solution: Matrix) -> Matrix:
     room1 = int(random() * len(solution))
     room2 = int(random() * len(solution))
 
-    # Select a random day period that is not -1 (no lecture) and them find another random day period that is -1
+    # Select a random day period that is not -1 (no lecture)
+    # and them find another random day period that is -1
     day_period1 = int(random() * len(solution[0]))
     day_period2 = int(random() * len(solution[0]))
 
     # Swap the lectures
-    new_solution[room1][day_period1], new_solution[room2][day_period2] = \
-        new_solution[room2][day_period2], new_solution[room1][day_period1]
+    new_solution[room1][day_period1], new_solution[room2][day_period2] = (
+        new_solution[room2][day_period2],
+        new_solution[room1][day_period1],
+    )
 
     log_solution(new_solution)
     return new_solution
+
 
 def f(solution: Matrix, schedule: Schedule) -> int:
     """Returns the fitness of the given solution"""

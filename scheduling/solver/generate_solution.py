@@ -79,7 +79,7 @@ def calculate_conflicts_lecture(course_index: int, period: int, schedule: Schedu
     # number of lectures that can also be allocated to the period/room
     n_periods_to_invalidate = calculate_concurrency(course_index, period, schedule, solution)
     # custo de alocação da aula c' no horário/sala h
-    cost = 0
+    cost = caculate_cost_lecture_period(course_index, period, schedule, solution)
 
     return BETA*n_periods_to_invalidate + GAMMA*cost
 
@@ -155,3 +155,7 @@ def generate_solution(schedule: Schedule) -> Matrix:
 
     return solution
 
+def caculate_cost_lecture_period(course_index: int, period: int, schedule: Schedule, solution: Matrix) -> int:
+    """Calculates the cost of allocating the lecture to the given period"""
+
+    return 0
