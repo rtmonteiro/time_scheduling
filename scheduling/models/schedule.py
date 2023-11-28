@@ -4,7 +4,7 @@ from json import JSONEncoder
 class Schedule:
     def __init__(
         self,
-        name,
+        name: str,
         n_days,
         n_periods,
         courses_size,
