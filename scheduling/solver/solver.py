@@ -1,10 +1,12 @@
 from copy import deepcopy
 from math import exp
 from random import random
+from time import time
 from scheduling.mapper import mapper
 from scheduling.models.matrix import Matrix
-from scheduling.models.schedule import Schedule, Assignment
+from scheduling.models.schedule import Course, Schedule, Assignment
 from scheduling.solver.checker import check_constraints, init_matrix
+from scheduling.solver.generate_solution import generate_solution
 from scheduling.utils import insert_into_slice, is_all_zeros
 from scheduling.logger import log_solution
 
@@ -15,63 +17,59 @@ def solve(schedule: Schedule) -> list[Assignment]:
     # Generate initial solution
     solution = generate_solution(schedule)
     # Apply simulated annealing
-    solution = simulated_annealing(initial_solution = solution,
-                                    max_iter = 100,
-                                    max_perturb = 100,
-                                    max_success = 100,
-                                    alpha = 0.9,
-                                    schedule = schedule)
+    solution = simulated_annealing(
+        initial_solution=solution,
+        schedule=schedule,
+        max_iter=100,
+        max_perturb=100,
+        max_success=100,
+        alpha=0.9,
+        time_limit=1000,
+    )
 
     return mapper(schedule, solution)
 
-def generate_solution(schedule: Schedule) -> Matrix:
-    """Generates all possible solutions for the given schedule"""
 
-    solution = init_matrix(schedule)
+def simulated_annealing(
+    initial_solution: Matrix,
+    schedule: Schedule,
+    max_iter: int,
+    max_perturb: int,
+    max_success: int,
+    alpha: float,
+    time_limit: int = 1000,
+) -> Matrix:
+    """
+    Applies the simulated annealing algorithm to find an optimal solution for the given problem.
 
-    sorted_rooms = sorted(schedule.rooms, key=lambda x: x.capacity)
+    Args:
+        initial_solution (Matrix): The initial solution for the problem.
+        schedule (Schedule): The schedule for the problem.
+        max_iter (int): The maximum number of iterations.
+        max_perturb (int): The maximum number of perturbations per iteration.
+        max_success (int): The maximum number of successful perturbations per iteration.
+        alpha (float): The cooling rate for the temperature.
+        time_limit (int, optional): The maximum time limit in milliseconds. Defaults to 1000.
 
-    sorted_courses = sorted(enumerate(schedule.courses), key=lambda x: len(x[1].constraints))
-
-    for course_index, course in sorted_courses:
-        found = False
-        for room in filter(lambda x: x.capacity >= course.n_students, sorted_rooms):
-            if found: break
-            room_index = schedule.rooms.index(room)
-            for day_period in range(schedule.n_days*schedule.n_periods):
-                if is_all_zeros(solution[room_index][day_period:day_period+course.n_lectures]) \
-                    and day_period + course.n_lectures <= schedule.n_days*schedule.n_periods:
-                    found = True
-                    insert_into_slice(solution[room_index], day_period, course.n_lectures, course_index)
-                    break
-    log_solution(solution)
-    return solution
-
-def simulated_annealing(initial_solution: Matrix,
-                         max_iter: int,
-                         max_perturb: int,
-                         max_success:int,
-                         alpha: float,
-                         schedule: Schedule) -> Matrix:
-    """Simulated Annealing algorithm"""
+    Returns:
+        Matrix: The optimal solution found by the algorithm.
+    """
     solution = initial_solution
     temperature = initial_temperature()
     j = 1
-    while True:
+    start = time()
+    while time_limit > time() - start:
         i = 1
         success = 0
-        while True:
+        while time_limit > time() - start:
             new_solution = perturb(solution)
             new_score = f(new_solution, schedule)
             old_score = f(solution, schedule)
             delta = new_score - old_score
             success_rate = delta < 0
-            luck = random() < exp(-delta/temperature)
+            luck = random() < exp(-delta / temperature)
             if success_rate or luck:
-                # print("luck" if luck else "success")
                 solution = new_solution
-                # print(f"Found better solution with fitness {old_score} -> {new_score}")
-                # print(solution)
                 success += 1
             i += 1
             if success >= max_success or i >= max_perturb:
@@ -82,9 +80,11 @@ def simulated_annealing(initial_solution: Matrix,
             break
     return solution
 
+
 def initial_temperature():
     """Returns the initial temperature for the simulated annealing algorithm"""
     return 30
+
 
 def perturb(solution: Matrix) -> Matrix:
     """Perturbs the given solution"""
@@ -94,16 +94,20 @@ def perturb(solution: Matrix) -> Matrix:
     room1 = int(random() * len(solution))
     room2 = int(random() * len(solution))
 
-    # Select a random day period that is not -1 (no lecture) and them find another random day period that is -1
+    # Select a random day period that is not -1 (no lecture)
+    # and them find another random day period that is -1
     day_period1 = int(random() * len(solution[0]))
     day_period2 = int(random() * len(solution[0]))
 
     # Swap the lectures
-    new_solution[room1][day_period1], new_solution[room2][day_period2] = \
-        new_solution[room2][day_period2], new_solution[room1][day_period1]
+    new_solution[room1][day_period1], new_solution[room2][day_period2] = (
+        new_solution[room2][day_period2],
+        new_solution[room1][day_period1],
+    )
 
     log_solution(new_solution)
     return new_solution
+
 
 def f(solution: Matrix, schedule: Schedule) -> int:
     """Returns the fitness of the given solution"""

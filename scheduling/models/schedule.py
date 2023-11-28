@@ -4,7 +4,7 @@ from json import JSONEncoder
 class Schedule:
     def __init__(
         self,
-        name,
+        name: str,
         n_days,
         n_periods,
         courses_size,
@@ -112,7 +112,7 @@ class Room:
 class Curriculum:
     def __init__(self, id: str, members: list[str]):
         self.id = id
-        self.members = members
+        self.members = [member if '\n' not in member else member.split('\n')[0] for member in members]
     
     def __dict__(self) -> dict:
         return {
