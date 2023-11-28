@@ -1,10 +1,12 @@
-from copy import deepcopy
+from copy import copy, deepcopy
 from math import exp
 from random import random
+import time
 from scheduling.mapper import mapper
 from scheduling.models.matrix import Matrix
 from scheduling.models.schedule import Course, Schedule, Assignment
 from scheduling.solver.checker import check_constraints, init_matrix
+from scheduling.solver.generate_solution import generate_solution
 from scheduling.utils import insert_into_slice, is_all_zeros
 from scheduling.logger import log_solution
 
@@ -16,49 +18,30 @@ def solve(schedule: Schedule) -> list[Assignment]:
     solution = generate_solution(schedule)
     # Apply simulated annealing
     solution = simulated_annealing(initial_solution = solution,
+                                    schedule = schedule,
                                     max_iter = 100,
                                     max_perturb = 100,
                                     max_success = 100,
                                     alpha = 0.9,
-                                    schedule = schedule)
+                                    time_limit = 1000)
 
     return mapper(schedule, solution)
 
-def calculate_conflicts(course_tuple: tuple[int, Course], schedule: Schedule) -> int:
-    """Calculates the number of conflicts for the given course"""
-    course_index = course_tuple[0]
-    course = course_tuple[1]
-
-    n_curricula = sum(1 for curriculum in schedule.curricula if course.id in curriculum.members)
-    return len(course.constraints) + course.n_lectures - course.min_working_days + n_curricula
-
-def generate_solution(schedule: Schedule) -> Matrix:
-    """Generates all possible solutions for the given schedule"""
-
-    solution = init_matrix(schedule)
-
-    # Set of all lectures to be assigned
-    lectures = [course.n_lectures*[course_index] for course_index, course in \
-                sorted(enumerate(schedule.courses), key = lambda x: calculate_conflicts(x, schedule), reverse=True)]
-    lectures = [item for sublist in lectures for item in sublist]
-    
-    log_solution(solution)
-    return solution
-
 def simulated_annealing(initial_solution: Matrix,
+                        schedule: Schedule,
                          max_iter: int,
                          max_perturb: int,
                          max_success:int,
                          alpha: float,
-                         schedule: Schedule) -> Matrix:
-    """Simulated Annealing algorithm"""
+                         time_limit: int = 1000) -> Matrix:
     solution = initial_solution
     temperature = initial_temperature()
     j = 1
-    while True:
+    start = time.time()
+    while time_limit > time.time() - start:
         i = 1
         success = 0
-        while True:
+        while time_limit > time.time() - start:
             new_solution = perturb(solution)
             new_score = f(new_solution, schedule)
             old_score = f(solution, schedule)
@@ -66,10 +49,7 @@ def simulated_annealing(initial_solution: Matrix,
             success_rate = delta < 0
             luck = random() < exp(-delta/temperature)
             if success_rate or luck:
-                # print("luck" if luck else "success")
                 solution = new_solution
-                # print(f"Found better solution with fitness {old_score} -> {new_score}")
-                # print(solution)
                 success += 1
             i += 1
             if success >= max_success or i >= max_perturb:
