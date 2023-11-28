@@ -1,0 +1,10 @@
+digraph "classes" {
+rankdir=BT
+charset="utf-8"
+"scheduling.models.schedule.Assignment" [color="black", fontcolor="black", label="{Assignment|course_id : str\lday : int\lperiod : int\lroom_id : str\l|}", shape="record", style="solid"];
+"scheduling.models.schedule.Constraint" [color="black", fontcolor="black", label="{Constraint|day : int\lday_period : int\l|}", shape="record", style="solid"];
+"scheduling.models.schedule.Course" [color="black", fontcolor="black", label="{Course|constraints : list[Constraint]\lid\lmin_working_days : int\ln_lectures : int\ln_students : int\lteacher_id\l|}", shape="record", style="solid"];
+"scheduling.models.schedule.Curriculum" [color="black", fontcolor="black", label="{Curriculum|id : str\lmembers\l|}", shape="record", style="solid"];
+"scheduling.models.schedule.Room" [color="black", fontcolor="black", label="{Room|capacity : int\lid : str\l|}", shape="record", style="solid"];
+"scheduling.models.schedule.Schedule" [color="black", fontcolor="black", label="{Schedule|constraints_size : int\lcourses : list[Course]\lcourses_size : int\lcurricula : list[Curriculum]\lcurricula_size : int\ln_days : int\ln_periods : int\lname : str\lrooms : list[Room]\lrooms_size : int\l|toJson(): str\l}", shape="record", style="solid"];
+}
