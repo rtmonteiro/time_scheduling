@@ -4,13 +4,14 @@ from random import random
 from time import time
 from scheduling.mapper import mapper
 from scheduling.models.matrix import Matrix
+from scheduling.models.params import Params
 from scheduling.models.schedule import Schedule, Assignment
 from scheduling.results import Results
 from scheduling.solver.checker import check_constraints
 from scheduling.solver.generate_solution import generate_solution
 
 
-def solve(schedule: Schedule) -> list[Assignment]:
+def solve(schedule: Schedule, params: Params) -> list[Assignment]:
     """Solves the given schedule and returns the list of solutions"""
 
     # Generate initial solution
@@ -19,11 +20,11 @@ def solve(schedule: Schedule) -> list[Assignment]:
     solution = simulated_annealing(
         initial_solution=solution,
         schedule=schedule,
-        max_iter=100,
-        max_perturb=100,
-        max_success=100,
-        alpha=0.9,
-        time_limit=100,
+        max_iter=params.max_iter,
+        max_perturb=params.max_perturb,
+        max_success=params.max_success,
+        alpha=params.alpha,
+        max_time=params.max_time,
     )
 
     return mapper(schedule, solution)
@@ -36,7 +37,7 @@ def simulated_annealing(
     max_perturb: int,
     max_success: int,
     alpha: float,
-    time_limit: int = 1000,
+    max_time: int = 1000,
 ) -> Matrix:
     """
     Applies the simulated annealing algorithm to find an optimal solution for the given problem.
@@ -57,10 +58,10 @@ def simulated_annealing(
     temperature = initial_temperature()
     j = 1
     start = time()
-    while time_limit > time() - start:
+    while max_time > time() - start:
         i = 1
         success = 0
-        while time_limit > time() - start:
+        while max_time > time() - start:
             new_solution = perturb(solution)
             new_score = f(new_solution, schedule)
             old_score = f(solution, schedule)
