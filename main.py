@@ -1,6 +1,6 @@
 from scheduling.reader.reader import read_file
 from scheduling.solver.solver import solve
-from scheduling.writer.write_file import write_file, write_json
+from scheduling.writer.write_file import write_file
 import sys
 import logging
 

@@ -36,3 +36,12 @@ def search_subarray_in_matrix(matrix: Matrix, sub_array: list[int]):
         if index != -1:
             return row_index, index
     return -1, -1
+
+def search_lectures(matrix: Matrix, course_index: int) -> list[tuple[int, int]]:
+    """Returns the indexes of the lectures in the matrix"""
+    periods = []
+    for room_index, room in enumerate(matrix):
+        for period, lecture_allocated in enumerate(room):
+            if lecture_allocated == course_index:
+                periods.append((room_index, period))
+    return periods

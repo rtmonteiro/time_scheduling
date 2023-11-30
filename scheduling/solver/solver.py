@@ -4,11 +4,9 @@ from random import random
 from time import time
 from scheduling.mapper import mapper
 from scheduling.models.matrix import Matrix
-from scheduling.models.schedule import Course, Schedule, Assignment
-from scheduling.solver.checker import check_constraints, init_matrix
+from scheduling.models.schedule import Schedule, Assignment
+from scheduling.solver.checker import check_constraints
 from scheduling.solver.generate_solution import generate_solution
-from scheduling.utils import insert_into_slice, is_all_zeros
-from scheduling.logger import log_solution
 
 
 def solve(schedule: Schedule) -> list[Assignment]:
@@ -94,9 +92,13 @@ def perturb(solution: Matrix) -> Matrix:
     room1 = int(random() * len(solution))
     room2 = int(random() * len(solution))
 
-    # Select a random day period that is not -1 (no lecture)
-    # and them find another random day period that is -1
+    # Try to find a random day period that is not -1 (no lecture) in 10 attempts
+    # and them find another random day period
     day_period1 = int(random() * len(solution[0]))
+    counter = 0
+    while solution[room1][day_period1] == -1 and counter < 10:
+        counter += 1
+        day_period1 = int(random() * len(solution[0]))
     day_period2 = int(random() * len(solution[0]))
 
     # Swap the lectures
@@ -104,8 +106,6 @@ def perturb(solution: Matrix) -> Matrix:
         new_solution[room2][day_period2],
         new_solution[room1][day_period1],
     )
-
-    log_solution(new_solution)
     return new_solution
 
 

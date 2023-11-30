@@ -1,6 +1,7 @@
 from copy import copy
 from math import sqrt
 from functools import reduce
+from scheduling.models.conflict import CourseData
 from scheduling.models.matrix import Matrix
 from scheduling.models.schedule import Course, Schedule
 import numpy as np
@@ -19,7 +20,7 @@ def calculate_nhv(course_index: int, schedule: Schedule, solution: Matrix) -> in
     # remove the periods that is already allocated
     periods_available = [period for period in periods_available \
                          if solution[period // (schedule.n_days * schedule.n_periods)]\
-                            [period % (schedule.n_days * schedule.n_periods)] != -1]
+                            [period % (schedule.n_days * schedule.n_periods)] == -1]
     
     # remove the periods that are in the course constraints
     periods_available = [period for period in periods_available \
@@ -90,48 +91,43 @@ def get_worst_course_conflict(lectures_pool: list[int], schedule: Schedule, solu
 
     course_pool = set(lectures_pool)
 
-    score_course = [{
-        "course": course_index,
-        "naa": calculate_naa(course_index, lectures_pool),
-        "nhv": calculate_nhv(course_index, schedule, solution),
-    } for course_index in course_pool]
+    score_course = [CourseData(
+        course_index, 
+        calculate_nhv(course_index, schedule, solution),
+        calculate_naa(course_index, lectures_pool)) \
+                    for course_index in course_pool]
 
-    def reducer(worst_course, course):
-        if worst_course["course"] == -1:
+    def reducer(worst_course: CourseData, course: CourseData):
+        if worst_course.course_index == -1:
             return course
-        if course["naa"] == 0:
+        if course.naa == 0:
             return worst_course
         
-        new_score = course["nhv"] / sqrt(course["naa"])
-        old_score = worst_course["nhv"] / sqrt(worst_course["naa"])
+        new_score = course.nhv / sqrt(course.naa)
+        old_score = worst_course.nhv / sqrt(worst_course.naa)
         if new_score == old_score:
-            course["nhsv"] = calculate_nhsv(course["course"], schedule, solution)
-            worst_course["nhsv"] = calculate_nhsv(worst_course["course"], schedule, solution)
-            new_score = course["nhsv"] / sqrt(course["nhsv"])
-            old_score = worst_course["nhsv"] / sqrt(worst_course["nhsv"])
+            course.nhsv = calculate_nhsv(course.course_index, schedule, solution)
+            worst_course.nhsv = calculate_nhsv(worst_course.course_index, schedule, solution)
+            new_score = course.nhsv / sqrt(course.nhsv)
+            old_score = worst_course.nhsv / sqrt(worst_course.nhsv)
             if new_score == old_score:
-                new_score = calculate_presence(course["course"], schedule, solution)
-                old_score = calculate_presence(worst_course["course"], schedule, solution)
-        return course["course"] if new_score > old_score else worst_course
+                new_score = calculate_presence(course.course_index, schedule, solution)
+                old_score = calculate_presence(worst_course.course_index, schedule, solution)
+        return course if new_score > old_score else worst_course
 
-    empty = {
-        "course": -1,
-        "naa": 0,
-        "nhv": 0,
-        "nhsv": 0,
-    }
+    empty = CourseData(-1, -1, -1)
 
-    worst_course = reduce(reducer, score_course, empty)["course"]
+    worst_course_index = reduce(reducer, score_course, empty).course_index
 
 
-    return lectures_pool.pop(lectures_pool.index(worst_course))
+    return lectures_pool.pop(lectures_pool.index(worst_course_index))
 
 
 def generate_solution(schedule: Schedule) -> Matrix:
     """Generates an initial solution"""
 
     # Initialize the solution matrix with zeros
-    solution = np.zeros((schedule.rooms_size, schedule.n_days * schedule.n_periods), dtype=int)
+    solution = np.full((schedule.rooms_size, schedule.n_days * schedule.n_periods), -1)
 
     # Initialize the list of lectures to be assigned
     lectures_pool = [course.n_lectures*[course_index] for course_index, course in enumerate(schedule.courses)]
