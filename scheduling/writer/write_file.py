@@ -12,6 +12,12 @@ def write_file(solutions: list[Assignment], file_path: str):
         for solution in solutions:
             file.write(str(solution) + "\n")
 
+def write_results(results: list[tuple[int, float, int]], file_path: str):
+    # write solutions to file
+    with open(file_path, "w") as file:
+        for result in results:
+            file.write(str(result) + "\n")
+
 def write_json(schedule: Schedule, file_path: str):
     # write schedule to file
     with open(file_path, "w") as file:

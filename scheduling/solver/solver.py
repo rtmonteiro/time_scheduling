@@ -5,6 +5,7 @@ from time import time
 from scheduling.mapper import mapper
 from scheduling.models.matrix import Matrix
 from scheduling.models.schedule import Schedule, Assignment
+from scheduling.results import Results
 from scheduling.solver.checker import check_constraints
 from scheduling.solver.generate_solution import generate_solution
 
@@ -22,7 +23,7 @@ def solve(schedule: Schedule) -> list[Assignment]:
         max_perturb=100,
         max_success=100,
         alpha=0.9,
-        time_limit=1000,
+        time_limit=100,
     )
 
     return mapper(schedule, solution)
@@ -67,6 +68,7 @@ def simulated_annealing(
             success_rate = delta < 0
             luck = random() < exp(-delta / temperature)
             if success_rate or luck:
+                Results().addResult((j, i, temperature, new_score))
                 solution = new_solution
                 success += 1
             i += 1
