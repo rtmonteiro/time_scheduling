@@ -44,7 +44,7 @@ def check_constraints(solution: Matrix, schedule: Schedule) -> int:
     # 8. RoomStability: All lectures of a course should be given in the same room. Each distinct room used for the lectures of a course, but the first, counts as 1 point of penalty
     score += check_room_stability(solution, schedule) * weights[7]
 
-    logging.info(f"Score: {score}")
+    logging.debug(f"Score: {score}")
     return score
 
 def check_lectures(matrix_solution: Matrix, schedule: Schedule) -> int:

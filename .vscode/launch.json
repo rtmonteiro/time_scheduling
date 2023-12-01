@@ -5,6 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Test Hiperparams",
+            "type": "python",
+            "request": "launch",
+            "program": "run_case.py",
+            "console": "integratedTerminal",
+            "args": [
+                "data/comp01.ctt",
+            ],
+            "justMyCode": true
+        },
+        {
             "name": "Python: Main",
             "type": "python",
             "request": "launch",
