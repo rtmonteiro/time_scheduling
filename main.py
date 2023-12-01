@@ -36,6 +36,7 @@ def get_params() -> Params:
     # --max_iter <int>
     # --max_perturb <int>
     # --max_success <int>
+    # --initial_temp <int>
     # --alpha <float>
     # --max_time <int>
     params = [(param[2:], sys.argv[param_index + 1]) for param_index, param in enumerate(sys.argv) if param.startswith("--")]

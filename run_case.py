@@ -21,19 +21,21 @@ def run_case():
     
 
 def generate_params() -> list[Params]:
-    max_iters = [100, 200, 300]
-    max_perturb = [50, 100, 200]
+    max_iters = [100]
+    max_perturb = [100]
     max_success = [20, 30, 50]
-    alpha = [0.5, 0.7, 0.9]
+    initial_temp = [30, 50, 80]
+    alpha = [0.9, 0.95, 0.99]
     max_time = 238
 
     params_list = []
 
-    for combination in itertools.product(max_iters, max_perturb, max_success, alpha):
+    for combination in itertools.product(max_iters, max_perturb, max_success, initial_temp, alpha):
         params = Params(dict(max_iter=combination[0], 
                         max_perturb=combination[1], 
                         max_success=combination[2], 
-                        alpha=combination[3], 
+                        initial_temp=combination[3],
+                        alpha=combination[4],
                         max_time=max_time))
         params_list.append(params)
 

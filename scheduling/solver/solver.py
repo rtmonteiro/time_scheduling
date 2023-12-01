@@ -26,6 +26,7 @@ def solve(schedule: Schedule, params: Params) -> list[Assignment]:
         max_iter=params.max_iter,
         max_perturb=params.max_perturb,
         max_success=params.max_success,
+        initial_temp=params.initial_temp,
         alpha=params.alpha,
         max_time=params.max_time,
     )
@@ -39,6 +40,7 @@ def simulated_annealing(
     max_iter: int,
     max_perturb: int,
     max_success: int,
+    initial_temp: float,
     alpha: float,
     max_time: int = 1000,
 ) -> Matrix:
@@ -58,7 +60,7 @@ def simulated_annealing(
         Matrix: The optimal solution found by the algorithm.
     """
     solution = initial_solution
-    temperature = initial_temperature()
+    temperature = initial_temp
     j = 1
     start = time()
     while max_time > time() - start:

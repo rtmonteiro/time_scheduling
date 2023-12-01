@@ -9,6 +9,9 @@ class Params():
         if "max_success" in params:
             max_success = params["max_success"]
             self.max_success = int(max_success) if max_success is not None else 100
+        if "initial_temp" in params:
+            initial_temp = params["initial_temp"]
+            self.initial_temp = int(initial_temp) if initial_temp is not None else 30
         if "alpha" in params:
             alpha = params["alpha"]
             self.alpha = float(alpha) if alpha is not None else 0.9
@@ -17,5 +20,5 @@ class Params():
             self.max_time = int(max_time) if max_time is not None else 1000
     
     def __str__(self):
-        return f"{self.max_iter}, {self.max_perturb}, {self.max_success}, {self.alpha}, {self.max_time}"
+        return f"{self.max_iter}, {self.max_perturb}, {self.max_success}, {self.initial_temp}, {self.alpha}, {self.max_time}"
         
