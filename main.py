@@ -20,16 +20,17 @@ def main():
 
     params = get_params()
     solved_schedule = solve(schedule, params)
-
-    filename = path.basename(file_path)
-    write_results(Results().getResults(), f"out/scores_{filename}.txt")
         
     solution_path = "out/solution.ctt"
     if len(sys.argv) > 2:
         solution_path = sys.argv[2]
     write_file(solved_schedule, solution_path)
 
-def get_params():
+    results_filename, ext = path.splitext(path.basename(solution_path))
+    write_results(Results().getResults(), params, f"out/results/scores_{results_filename}")
+    logging.debug('Finished main.py')
+
+def get_params() -> Params:
 
     # Expectation: 
     # --max_iter <int>
@@ -37,9 +38,9 @@ def get_params():
     # --max_success <int>
     # --alpha <float>
     # --max_time <int>
-    params = [(param, sys.argv[param_index + 1]) for param_index, param in enumerate(sys.argv) if param.startswith("--")]
-    return Params(dict(params))
-
+    params = [(param[2:], sys.argv[param_index + 1]) for param_index, param in enumerate(sys.argv) if param.startswith("--")]
+    params = Params(dict(params))
+    return params
 
 
 if __name__ == "__main__":

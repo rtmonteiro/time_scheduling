@@ -1,4 +1,5 @@
 from copy import deepcopy
+import logging
 from math import exp
 from random import random
 from time import time
@@ -15,8 +16,10 @@ def solve(schedule: Schedule, params: Params) -> list[Assignment]:
     """Solves the given schedule and returns the list of solutions"""
 
     # Generate initial solution
+    logging.debug("Generating first solution")
     solution = generate_solution(schedule)
     # Apply simulated annealing
+    logging.debug("Starting solving with metaheuristic")
     solution = simulated_annealing(
         initial_solution=solution,
         schedule=schedule,
@@ -67,7 +70,10 @@ def simulated_annealing(
             old_score = f(solution, schedule)
             delta = new_score - old_score
             success_rate = delta < 0
-            luck = random() < exp(-delta / temperature)
+            try :
+                luck = random() < exp(-delta / temperature)
+            except OverflowError:
+                luck = False
             if success_rate or luck:
                 Results().addResult((j, i, temperature, new_score))
                 solution = new_solution
@@ -82,9 +88,9 @@ def simulated_annealing(
     return solution
 
 
-def initial_temperature():
+def initial_temperature() -> float:
     """Returns the initial temperature for the simulated annealing algorithm"""
-    return 30
+    return 30.0
 
 
 def perturb(solution: Matrix) -> Matrix:

@@ -15,4 +15,7 @@ class Params():
         if "max_time" in params:
             max_time = params["max_time"]
             self.max_time = int(max_time) if max_time is not None else 1000
+    
+    def __str__(self):
+        return f"{self.max_iter}, {self.max_perturb}, {self.max_success}, {self.alpha}, {self.max_time}"
         

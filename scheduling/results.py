@@ -24,8 +24,8 @@ class Results(metaclass=SingletonMeta):
         self.results = []
 
     # Returns the iteration, the temperature and the score
-    def addResult(self, result: tuple[int, float, int]):
+    def addResult(self, result: tuple[int, int, float, int]):
         self.results.append(result)
 
-    def getResults(self):
+    def getResults(self) -> list[tuple[int, int, float, int]]:
         return self.results
