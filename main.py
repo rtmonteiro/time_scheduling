@@ -24,7 +24,7 @@ def main(params_ref: Params = None):
     solution_path = "out/solution.ctt"
     if len(sys.argv) > 2:
         solution_path = sys.argv[2]
-    write_file(solved_schedule, solution_path)
+    # write_file(solved_schedule, solution_path)
 
     results_filename, ext = path.splitext(path.basename(solution_path))
     write_results(Results().getResults(), params, f"out/results/scores_{results_filename}")
