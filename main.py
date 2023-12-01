@@ -8,17 +8,17 @@ import logging
 from os import path
 
 
-def main():
+def main(params_ref: Params = None):
 
-    logging.basicConfig(level=logging.DEBUG)
-    logging.debug('Starting main.py')
+    logging.basicConfig(level=logging.INFO)
+    logging.info('Starting main.py')
     if len(sys.argv) < 2:
         logging.error("Usage: python main.py <file_path>")
         return
     file_path = sys.argv[1]
     schedule = read_file(file_path)
 
-    params = get_params()
+    params = get_params() if params_ref is None else params_ref
     solved_schedule = solve(schedule, params)
         
     solution_path = "out/solution.ctt"
@@ -28,7 +28,7 @@ def main():
 
     results_filename, ext = path.splitext(path.basename(solution_path))
     write_results(Results().getResults(), params, f"out/results/scores_{results_filename}")
-    logging.debug('Finished main.py')
+    logging.info('Finished main.py')
 
 def get_params() -> Params:
 

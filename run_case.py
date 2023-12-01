@@ -1,19 +1,23 @@
-from os import system
-import subprocess, sys
+import multiprocessing as mp
 import itertools
+from main import main
 
 from scheduling.models.params import Params
 
 def run_case():
     arr_params = generate_params()
 
+    processes = []
     for params in arr_params:
-        params_str = ' '.join(f'--{k} {v}' for k, v in vars(params).items())
-        datapath = 'data/comp00.ctt'
-        outpath = 'out/comp00.ctt'
-        command = 'python main.py ' + datapath + ' ' + outpath + ' ' + params_str
-        print(command)
-        system(command)
+        p = mp.Process(target=main, args=(params,))
+        p.start()
+        processes.append(p)
+
+    for p in processes:
+        p.join()
+    print("###### Finished ######")
+
+
     
 
 def generate_params() -> list[Params]:

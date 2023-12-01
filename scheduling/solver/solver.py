@@ -16,10 +16,10 @@ def solve(schedule: Schedule, params: Params) -> list[Assignment]:
     """Solves the given schedule and returns the list of solutions"""
 
     # Generate initial solution
-    logging.debug("Generating first solution")
+    logging.info("Generating first solution")
     solution = generate_solution(schedule)
     # Apply simulated annealing
-    logging.debug("Starting solving with metaheuristic")
+    logging.info("Starting solving with metaheuristic")
     solution = simulated_annealing(
         initial_solution=solution,
         schedule=schedule,
