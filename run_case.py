@@ -1,5 +1,7 @@
+import logging
 import multiprocessing as mp
 import itertools
+import os
 from main import main
 
 from scheduling.models.params import Params
@@ -7,11 +9,19 @@ from scheduling.models.params import Params
 def run_case():
     arr_params = generate_params()
 
+    directory = 'data/' 
+    datasets = [os.path.join(directory, file) for file in os.listdir(directory) if os.path.isfile(os.path.join(directory, file))]
     processes = []
-    for params in arr_params:
-        p = mp.Process(target=main, args=(params,))
-        p.start()
-        processes.append(p)
+    for dataset in datasets:
+        for params in arr_params:
+            # for i in range(5):
+                # logging.info(f"Running: {dataset} - {i}")
+                filename = os.path.splitext(os.path.basename(dataset))[0]
+                print(f"Running: {dataset}")
+                output_path = f"out/{filename}/{filename}.txt"
+                p = mp.Process(target=main, args=(params, dataset, output_path, ))
+                p.start()
+                processes.append(p)
 
     for p in processes:
         p.join()
@@ -21,11 +31,18 @@ def run_case():
     
 
 def generate_params() -> list[Params]:
+    # max_iters = [100]
+    # max_perturb = [100]
+    # max_success = [20, 30]
+    # initial_temp = [30, 50, 80]
+    # alpha = [0.9, 0.95]
+    # max_time = 238
+
     max_iters = [100]
     max_perturb = [100]
-    max_success = [20, 30, 50]
-    initial_temp = [30, 50, 80]
-    alpha = [0.9, 0.95, 0.99]
+    max_success = [30]
+    initial_temp = [30]
+    alpha = [0.9]
     max_time = 238
 
     params_list = []
