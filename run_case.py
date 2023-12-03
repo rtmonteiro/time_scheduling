@@ -14,10 +14,10 @@ def run_case():
     processes = []
     for dataset in datasets:
         for params in arr_params:
-            # for i in range(5):
-                # logging.info(f"Running: {dataset} - {i}")
+            for i in range(5):
                 filename = os.path.splitext(os.path.basename(dataset))[0]
-                print(f"Running: {dataset}")
+                print(f"Running: {dataset} - {i}")
+                # print(f"Running: {dataset}")
                 output_path = f"out/{filename}/{filename}.txt"
                 p = mp.Process(target=main, args=(params, dataset, output_path, ))
                 p.start()
