@@ -68,8 +68,8 @@ def simulated_annealing(
         success = 0
         while max_time > time() - start:
             new_solution = perturb(solution)
-            new_score = f(new_solution, schedule)
-            old_score = f(solution, schedule)
+            new_score, viable = f(new_solution, schedule)
+            old_score, _ = f(solution, schedule)
             delta = new_score - old_score
             success_rate = delta < 0
             try :
@@ -77,7 +77,7 @@ def simulated_annealing(
             except OverflowError:
                 luck = False
             if success_rate or luck:
-                Results().addResult((j, i, temperature, new_score))
+                Results().addResult((j, i, temperature, new_score, viable))
                 solution = new_solution
                 success += 1
             i += 1
@@ -120,6 +120,6 @@ def perturb(solution: Matrix) -> Matrix:
     return new_solution
 
 
-def f(solution: Matrix, schedule: Schedule) -> int:
+def f(solution: Matrix, schedule: Schedule) -> tuple[int, bool]:
     """Returns the fitness of the given solution"""
     return check_constraints(solution, schedule)
