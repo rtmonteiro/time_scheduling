@@ -1,4 +1,3 @@
-import logging
 import multiprocessing as mp
 import itertools
 import os
@@ -10,15 +9,17 @@ def run_case():
     arr_params = generate_params()
 
     directory = 'data/' 
-    datasets = [os.path.join(directory, file) for file in os.listdir(directory) if os.path.isfile(os.path.join(directory, file))]
+    datasets = [os.path.join(directory, file) for file in os.listdir(directory) \
+                if os.path.isfile(os.path.join(directory, file))]
     processes = []
     for dataset in datasets:
+    # dataset = "data/comp00.ctt"
         for params in arr_params:
             for i in range(5):
                 filename = os.path.splitext(os.path.basename(dataset))[0]
                 print(f"Running: {dataset} - {i}")
                 # print(f"Running: {dataset}")
-                output_path = f"out/{filename}/{filename}.txt"
+                output_path = f"out/{filename}/{filename}_{i}.ctt"
                 p = mp.Process(target=main, args=(params, dataset, output_path, ))
                 p.start()
                 processes.append(p)

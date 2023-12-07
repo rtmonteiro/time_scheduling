@@ -16,10 +16,13 @@ def write_file(solutions: list[Assignment], file_path: str):
 
 def write_results(results: list[tuple[int, int, float, int]],
                   params: Params,
-                  file_path: str):
-    timestamp = time.strftime("%Y%m%d-%H%M%S")
-    file_path = file_path + "_" + timestamp + ".txt"
-    with open(file_path, "w") as file:
+                  solution_path: str):
+    filename, ext = os.path.splitext(os.path.basename(solution_path))
+    foldername = os.path.dirname(solution_path)
+    results_path = f"{foldername}/scores_{filename}.res"
+    if not os.path.exists(os.path.dirname(results_path)):
+        os.makedirs(os.path.dirname(results_path))
+    with open(results_path, "w") as file:
         file.write(str(params) + "\n")
         for result in results:
             file.write(str(result) + "\n")

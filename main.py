@@ -24,10 +24,9 @@ def main(params_ref: Params = None, file_path_ref: str = None, output_path_ref =
     solution_path = "out/solution.ctt" if output_path_ref is None else output_path_ref
     if len(sys.argv) > 2:
         solution_path = sys.argv[2]
-    # write_file(solved_schedule, solution_path)
+    write_file(solved_schedule, solution_path)
 
-    results_filename, ext = path.splitext(path.basename(solution_path))
-    write_results(Results().getResults(), params, f"out/{results_filename}/scores_{results_filename}")
+    write_results(Results().getResults(), params, solution_path)
     logging.info('Finished main.py')
 
 def get_params() -> Params:

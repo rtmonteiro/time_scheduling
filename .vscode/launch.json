@@ -10,10 +10,6 @@
             "request": "launch",
             "program": "run_case.py",
             "console": "integratedTerminal",
-            "args": [
-                "data/comp01.ctt",
-                "out/comp01.ctt",
-            ],
             "justMyCode": true
         },
         {
